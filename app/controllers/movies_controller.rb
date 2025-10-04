@@ -10,16 +10,29 @@ class MoviesController < ApplicationController
     @all_ratings = Movie.all_ratings
 
     # Ratings filtering
-    if params[:ratings].present?
+    if params[:ratings]
       @ratings_to_show = params[:ratings].keys
+      session[:ratings] = params[:ratings]
+    elsif params[:commit] == 'Refresh'
+      # User submitted form with no ratings checked
+      @ratings_to_show = @all_ratings
+      session[:ratings] = Hash[@all_ratings.map { |r| [r, 1] }]
+    elsif session[:ratings]
+      @ratings_to_show = session[:ratings].keys
     else
       @ratings_to_show = @all_ratings
     end
 
     # Sorting
-    @sort_by = params[:sort_by]
+    if params[:sort_by]
+      @sort_by = params[:sort_by]
+      session[:sort_by] = @sort_by
+    elsif session[:sort_by]
+      @sort_by = session[:sort_by]
+    else
+      @sort_by = nil
+    end
 
-    # Apply filtering and sorting
     @movies = Movie.with_ratings(@ratings_to_show)
     @movies = @movies.order(@sort_by) if @sort_by.present?
   end
