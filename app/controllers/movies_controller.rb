@@ -8,13 +8,20 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
+
+    # Ratings filtering
     if params[:ratings].present?
       @ratings_to_show = params[:ratings].keys
     else
       @ratings_to_show = @all_ratings
-  end
+    end
 
-  @movies = Movie.with_ratings(@ratings_to_show)
+    # Sorting
+    @sort_by = params[:sort_by]
+
+    # Apply filtering and sorting
+    @movies = Movie.with_ratings(@ratings_to_show)
+    @movies = @movies.order(@sort_by) if @sort_by.present?
   end
 
   def new
